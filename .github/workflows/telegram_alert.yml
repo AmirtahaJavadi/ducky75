@@ -1,0 +1,42 @@
+name: Telegram Notification on Push
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Send Telegram message
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          # Get commit details
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B | head -n 1)
+          COMMIT_AUTHOR=$(git log -1 --pretty=%an)
+          COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+          
+          # Format message
+          MESSAGE="🚀 *New Commit Push!*%0A%0A"
+          MESSAGE+="📦 *Repository:* ${{ github.repository }}%0A"
+          MESSAGE+="🔀 *Branch:* ${{ github.ref_name }}%0A"
+          MESSAGE+="📝 *Commit:* \`$COMMIT_HASH\`%0A"
+          MESSAGE+="👤 *Author:* $COMMIT_AUTHOR%0A%0A"
+          MESSAGE+="💬 *Message:*%0A$COMMIT_MESSAGE%0A%0A"
+          MESSAGE+="🔗 [View Changes]($COMMIT_URL)"
+          
+          # Send via Telegram API
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHANNEL_ID}" \
+            -d text="${MESSAGE}" \
+            -d parse_mode="Markdown" \
+            -d disable_web_page_preview="true"
