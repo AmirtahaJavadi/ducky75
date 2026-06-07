@@ -30,7 +30,6 @@ jobs:
           MESSAGE+="📦 *Repository:* ${{ github.repository }}%0A"
           MESSAGE+="🔀 *Branch:* ${{ github.ref_name }}%0A"
           MESSAGE+="📝 *Commit:* \`$COMMIT_HASH\`%0A"
-          MESSAGE+="👤 *Author:* $COMMIT_AUTHOR%0A%0A"
           MESSAGE+="💬 *Message:*%0A$COMMIT_MESSAGE%0A%0A"
           MESSAGE+="🔗 [View Changes]($COMMIT_URL)"
           
